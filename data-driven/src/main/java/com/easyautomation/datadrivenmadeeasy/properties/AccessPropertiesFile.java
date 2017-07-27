@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,6 +58,42 @@ public class AccessPropertiesFile {
 		return propertyValue;
 	}
 	
+	public Map<String, String> readProperties(ArrayList<String> propertiesToFetch) throws Exception {
+		Map<String, String> properties = new HashMap<String, String>();
+		try {
+			input = new FileInputStream(file);
+			prop.load(input);
+			
+			for(String property : propertiesToFetch) {
+				if(prop.containsKey(property)) {
+					properties.put(property, prop.getProperty(property));
+				}
+				else {
+					throw new NoSuchPropertyException();
+				}
+			}
+		}
+		catch(NoSuchPropertyException e) {
+			throw new NoSuchPropertyException("All given properties are not present");
+		}
+		catch(FileNotFoundException e) {
+			throw new FileNotFoundException("File " + file + " is not found");
+		}
+		catch(IOException e) {
+			throw new IOException("Could not read file " + file);
+		}
+		catch(Exception e) {
+			throw new Exception(e.getCause().toString());
+		}
+		finally {
+			if(input != null) {
+				input.close();
+			}
+		}
+		
+		return properties;
+	}
+	
 	public Map<String,String> readAllProperties() throws Exception {
 		Map<String, String> properties = new HashMap<String, String>();
 		try {
@@ -80,7 +117,9 @@ public class AccessPropertiesFile {
 			throw new Exception(e.getCause().toString());
 		}
 		finally {
-			input.close();
+			if(input != null) {
+				input.close();
+			}
 		}
 		
 		return properties;
@@ -112,4 +151,8 @@ public class AccessPropertiesFile {
 			}
 		}
 	}
+
+	// Select * from properties
+	// Select prop1,prop2 from properties
+	
 }
