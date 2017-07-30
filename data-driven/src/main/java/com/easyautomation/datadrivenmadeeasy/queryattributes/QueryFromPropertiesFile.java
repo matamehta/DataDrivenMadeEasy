@@ -44,7 +44,7 @@ public class QueryFromPropertiesFile {
 		ArrayList<String> parametersList = new ArrayList<String>();
 		String[] queryParts = query.trim().split(" ");
 		try {
-			if(queryParts.length > 2 || queryParts.length < 2) {
+			if(queryParts.length == 2) {
 				switch(queryParts[1]) {
 					case "*":
 						parametersList.add("*");
@@ -81,7 +81,7 @@ public class QueryFromPropertiesFile {
 		ArrayList<String> parametersList = new ArrayList<String>();
 		String[] queryParts = query.trim().split(" ");
 		try {
-			if(queryParts.length > 2 || queryParts.length < 2) {
+			if(queryParts.length == 2) {
 				switch(queryParts[1]) {
 					case "*":
 						parametersList.add("*");
