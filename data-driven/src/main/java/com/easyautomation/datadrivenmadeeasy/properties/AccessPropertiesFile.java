@@ -191,14 +191,8 @@ public class AccessPropertiesFile {
 			if(prop.containsKey(property)) {
 				prop.remove(property);
 			}
-			else {
-				throw new NoSuchPropertyException();
-			}
 			output = new FileOutputStream(file);
 			prop.store(output, "");
-		}
-		catch(NoSuchPropertyException e) {
-			throw new NoSuchPropertyException("Given property " + property + " is not present");
 		}
 		catch(FileNotFoundException e) {
 			throw new FileNotFoundException("File " + file + " is not found");
