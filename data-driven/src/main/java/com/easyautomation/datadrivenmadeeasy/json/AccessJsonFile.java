@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.json.simple.JSONArray;
@@ -14,10 +13,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import com.easyautomation.datadrivenmadeeasy.exceptions.InvalidSearchOperationException;
 import com.easyautomation.datadrivenmadeeasy.exceptions.JSONParseException;
-import com.easyautomation.datadrivenmadeeasy.exceptions.NoSuchJSONArrayException;
-import com.easyautomation.datadrivenmadeeasy.exceptions.NoSuchPropertyException;
 import com.easyautomation.datadrivenmadeeasy.queryattributes.QueryFromJsonFile;
 
 public class AccessJsonFile {
@@ -28,11 +24,13 @@ public class AccessJsonFile {
 	Object object;
 	FileWriter writeFile;
 	QueryFromJsonFile jsonQuery;
+	AccessJson accessJSON;
 	
 	public AccessJsonFile(File file) {
 		this.file = file;
 		parser = new JSONParser();
 		jsonQuery = new QueryFromJsonFile();
+		accessJSON = new AccessJson();
 	}
 	
 	public Object getPropertyValueFromJSONObject(String key) throws Exception {
@@ -40,18 +38,10 @@ public class AccessJsonFile {
 		try {
 			object = parser.parse(new FileReader(file));
 			jsonObject = (JSONObject) object;
-			if(jsonObject.containsKey(key)) {
-				value = jsonObject.get(key);
-			}
-			else {
-				throw new NoSuchPropertyException();
-			}
+			value = accessJSON.getPropertyValueFromJSONObject(jsonObject, key);
 		}
 		catch(ParseException e) {
 			throw new JSONParseException();
-		}
-		catch(NoSuchPropertyException e) {
-			throw new NoSuchPropertyException("Property " + key + " is not present in JSON");
 		}
 		catch(FileNotFoundException e) {
 			throw new FileNotFoundException("File " + file + " is not found");
@@ -60,38 +50,21 @@ public class AccessJsonFile {
 			throw new IOException("Could not read file " + file);
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
 		return value;
 	}
 	
 	public int getCountOfObjectsInJSONArray(String key) throws Exception {
-		int countOfArray = -1;
+		int countOfObjects = -1;
 		try {
 			object = parser.parse(new FileReader(file));
 			jsonObject = (JSONObject) object;
-			if(jsonObject.containsKey(key)) {
-				if(jsonObject.get(key) instanceof JSONArray) {
-					JSONArray jsonArray = (JSONArray) jsonObject.get(key);
-					countOfArray = jsonArray.size();
-				}
-				else {
-					throw new NoSuchJSONArrayException();
-				}
-			}
-			else {
-				throw new NoSuchPropertyException();
-			}
+			countOfObjects = accessJSON.getCountOfObjectsInJSONArray(jsonObject, key);
 		}
 		catch(ParseException e) {
 			throw new JSONParseException();
-		}
-		catch(NoSuchPropertyException e) {
-			throw new NoSuchPropertyException("Property " + key + " is not present in JSON");
-		}
-		catch(NoSuchJSONArrayException e) {
-			throw new NoSuchJSONArrayException();
 		}
 		catch(FileNotFoundException e) {
 			throw new FileNotFoundException("File " + file + " is not found");
@@ -100,10 +73,10 @@ public class AccessJsonFile {
 			throw new IOException("Could not read file " + file);
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
-		return countOfArray;
+		return countOfObjects;
 	}
 	
 	public JSONObject getFirstObjectFromJSONArray(String key) throws Exception {
@@ -111,27 +84,10 @@ public class AccessJsonFile {
 		try {
 			object = parser.parse(new FileReader(file));
 			jsonObject = (JSONObject) object;
-			if(jsonObject.containsKey(key)) {
-				if(jsonObject.get(key) instanceof JSONArray) {
-					JSONArray jsonArray = (JSONArray) jsonObject.get(key);
-					jsonObjectToReturn = (JSONObject) jsonArray.get(0);
-				}
-				else {
-					throw new NoSuchJSONArrayException();
-				}
-			}
-			else {
-				throw new NoSuchPropertyException();
-			}
+			jsonObjectToReturn = accessJSON.getFirstObjectFromJSONArray(jsonObject, key);
 		}
 		catch(ParseException e) {
 			throw new JSONParseException();
-		}		
-		catch(NoSuchPropertyException e) {
-			throw new NoSuchPropertyException("Property " + key + " is not present in JSON");
-		}
-		catch(NoSuchJSONArrayException e) {
-			throw new NoSuchJSONArrayException();
 		}
 		catch(FileNotFoundException e) {
 			throw new FileNotFoundException("File " + file + " is not found");
@@ -140,7 +96,7 @@ public class AccessJsonFile {
 			throw new IOException("Could not read file " + file);
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
 		return jsonObjectToReturn;
@@ -151,27 +107,10 @@ public class AccessJsonFile {
 		try {
 			object = parser.parse(new FileReader(file));
 			jsonObject = (JSONObject) object;
-			if(jsonObject.containsKey(key)) {
-				if(jsonObject.get(key) instanceof JSONArray) {
-					JSONArray jsonArray = (JSONArray) jsonObject.get(key);
-					valueToReturn = jsonArray.get(0);
-				}
-				else {
-					throw new NoSuchJSONArrayException();
-				}
-			}
-			else {
-				throw new NoSuchPropertyException();
-			}
+			valueToReturn = accessJSON.getFirstValueFromJSONArray(jsonObject, key);
 		}
 		catch(ParseException e) {
 			throw new JSONParseException();
-		}
-		catch(NoSuchPropertyException e) {
-			throw new NoSuchPropertyException("Property " + key + " is not present in JSON");
-		}
-		catch(NoSuchJSONArrayException e) {
-			throw new NoSuchJSONArrayException();
 		}
 		catch(FileNotFoundException e) {
 			throw new FileNotFoundException("File " + file + " is not found");
@@ -180,7 +119,7 @@ public class AccessJsonFile {
 			throw new IOException("Could not read file " + file);
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
 		return valueToReturn;
@@ -191,26 +130,10 @@ public class AccessJsonFile {
 		try {
 			object = parser.parse(new FileReader(file));
 			jsonObject = (JSONObject) object;
-			if(jsonObject.containsKey(key)) {
-				if(jsonObject.get(key) instanceof JSONArray) {
-					jsonArray = (JSONArray) jsonObject.get(key);
-				}
-				else {
-					throw new NoSuchJSONArrayException();
-				}
-			}
-			else {
-				throw new NoSuchPropertyException();
-			}
+			jsonArray = accessJSON.getJSONArray(jsonObject, key);
 		}
 		catch(ParseException e) {
 			throw new JSONParseException();
-		}
-		catch(NoSuchPropertyException e) {
-			throw new NoSuchPropertyException("Property " + key + " is not present in JSON");
-		}
-		catch(NoSuchJSONArrayException e) {
-			throw new NoSuchJSONArrayException();
 		}
 		catch(FileNotFoundException e) {
 			throw new FileNotFoundException("File " + file + " is not found");
@@ -219,7 +142,7 @@ public class AccessJsonFile {
 			throw new IOException("Could not read file " + file);
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
 		return jsonArray;
@@ -230,32 +153,10 @@ public class AccessJsonFile {
 		try {
 			object = parser.parse(new FileReader(file));
 			jsonObject = (JSONObject) object;
-			if(jsonObject.containsKey(key)) {
-				if(jsonObject.get(key) instanceof JSONArray) {
-					JSONArray jsonArray = (JSONArray) jsonObject.get(key);
-					Iterator<JSONObject> i = jsonArray.iterator();
-					
-					while(i.hasNext()) {
-						JSONObject object = (JSONObject) i.next();
-						listOfJSONObject.add(object);
-					}
-				}
-				else {
-					throw new NoSuchJSONArrayException();
-				}
-			}
-			else {
-				throw new NoSuchPropertyException();
-			}
+			listOfJSONObject = accessJSON.getAllObjectsFromJSONArray(jsonObject, key);
 		}
 		catch(ParseException e) {
 			throw new JSONParseException();
-		}
-		catch(NoSuchPropertyException e) {
-			throw new NoSuchPropertyException("Property " + key + " is not present in JSON");
-		}
-		catch(NoSuchJSONArrayException e) {
-			throw new NoSuchJSONArrayException();
 		}
 		catch(FileNotFoundException e) {
 			throw new FileNotFoundException("File " + file + " is not found");
@@ -264,7 +165,7 @@ public class AccessJsonFile {
 			throw new IOException("Could not read file " + file);
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
 		return listOfJSONObject;
@@ -275,27 +176,10 @@ public class AccessJsonFile {
 		try {
 			object = parser.parse(new FileReader(file));
 			jsonObject = (JSONObject) object;
-			if(jsonObject.containsKey(key)) {
-				if(jsonObject.get(key) instanceof JSONArray) {
-					JSONArray jsonArray = (JSONArray) jsonObject.get(key);
-					values = jsonArray.toArray();
-				}
-				else {
-					throw new NoSuchJSONArrayException();
-				}
-			}
-			else {
-				throw new NoSuchPropertyException();
-			}
+			values = accessJSON.getAllValuesFromJSONArray(jsonObject, key);
 		}
 		catch(ParseException e) {
 			throw new JSONParseException();
-		}
-		catch(NoSuchPropertyException e) {
-			throw new NoSuchPropertyException("Property " + key + " is not present in JSON");
-		}
-		catch(NoSuchJSONArrayException e) {
-			throw new NoSuchJSONArrayException();
 		}
 		catch(FileNotFoundException e) {
 			throw new FileNotFoundException("File " + file + " is not found");
@@ -304,7 +188,7 @@ public class AccessJsonFile {
 			throw new IOException("Could not read file " + file);
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
 		return values;
@@ -313,14 +197,12 @@ public class AccessJsonFile {
 	public List<JSONObject> getObjectsFromJSONArrayBasedOnCondition(String arrayKey, List<String> condition) throws Exception {
 		List<JSONObject> filteredJSONObjects = new ArrayList<JSONObject>();
 		try {
-			List<JSONObject> jsonObjects = getAllObjectsFromJSONArray(arrayKey);
-			for(int counter = 0; counter < condition.size(); counter++) {
-				jsonObjects = AccessJson.getFilteredJSONObjects(jsonObjects, condition.get(counter));
-			}
-			filteredJSONObjects = jsonObjects;
+			object = parser.parse(new FileReader(file));
+			jsonObject = (JSONObject) object;
+			filteredJSONObjects = accessJSON.getObjectsFromJSONArrayBasedOnCondition(jsonObject, arrayKey, condition);
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
 		return filteredJSONObjects;
@@ -330,7 +212,7 @@ public class AccessJsonFile {
 		try {
 			object = parser.parse(new FileReader(file));
 			jsonObject = (JSONObject) object;
-			jsonObject.put(key, value);
+			jsonObject = accessJSON.addPropertyToJSONObject(jsonObject, key, value);
 			writeFile = new FileWriter(file);
 			writeFile.write(jsonObject.toJSONString());
 		}
@@ -344,7 +226,7 @@ public class AccessJsonFile {
 			throw new IOException("Could not read file " + file);
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		finally {
 			if(writeFile != null) {
@@ -357,29 +239,12 @@ public class AccessJsonFile {
 		try {
 			object = parser.parse(new FileReader(file));
 			jsonObject = (JSONObject) object;
-			if(jsonObject.containsKey(arrayKey)) {
-				if(jsonObject.get(arrayKey) instanceof JSONArray) {
-					JSONArray list = (JSONArray) jsonObject.get(arrayKey);
-					list.add(value);
-					jsonObject.put(arrayKey, list);
-				}
-				else {
-					throw new NoSuchJSONArrayException();
-				}
-			}
-			else {
-				JSONArray list = new JSONArray();
-				list.add(value);
-				jsonObject.put(arrayKey, list);
-			}
+			jsonObject = accessJSON.addValueToJSONArray(jsonObject, arrayKey, value);
 			writeFile = new FileWriter(file);
 			writeFile.write(jsonObject.toJSONString());
 		}
 		catch(ParseException e) {
 			throw new JSONParseException();
-		}
-		catch(NoSuchJSONArrayException e) {
-			throw new NoSuchJSONArrayException();
 		}
 		catch(FileNotFoundException e) {
 			throw new FileNotFoundException("File " + file + " is not found");
@@ -388,7 +253,7 @@ public class AccessJsonFile {
 			throw new IOException("Could not read file " + file);
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		finally {
 			if(writeFile != null) {
@@ -401,29 +266,12 @@ public class AccessJsonFile {
 		try {
 			object = parser.parse(new FileReader(file));
 			jsonObject = (JSONObject) object;
-			if(jsonObject.containsKey(arrayKey)) {
-				if(jsonObject.get(arrayKey) instanceof JSONArray) {
-					JSONArray list = (JSONArray) jsonObject.get(arrayKey);
-					list.add(jsonObj);
-					jsonObject.put(arrayKey, list);
-				}
-				else {
-					throw new NoSuchJSONArrayException();
-				}
-			}
-			else {
-				JSONArray list = new JSONArray();
-				list.add(jsonObj);
-				jsonObject.put(arrayKey, list);
-			}
+			jsonObject = accessJSON.addJSONObjectToJSONArray(jsonObject, arrayKey, jsonObj);
 			writeFile = new FileWriter(file);
 			writeFile.write(jsonObject.toJSONString());
 		}
 		catch(ParseException e) {
 			throw new JSONParseException();
-		}
-		catch(NoSuchJSONArrayException e) {
-			throw new NoSuchJSONArrayException();
 		}
 		catch(FileNotFoundException e) {
 			throw new FileNotFoundException("File " + file + " is not found");
@@ -432,7 +280,7 @@ public class AccessJsonFile {
 			throw new IOException("Could not read file " + file);
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		finally {
 			if(writeFile != null) {
@@ -460,7 +308,7 @@ public class AccessJsonFile {
 			throw new IOException("Could not read file " + file);
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		return object;
 	}

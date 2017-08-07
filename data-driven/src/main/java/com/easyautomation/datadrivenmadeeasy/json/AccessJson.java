@@ -32,6 +32,78 @@ public class AccessJson {
 		return value;
 	}
 	
+	public int getCountOfObjectsInJSONArray(JSONObject jsonObject, String key) throws Exception {
+		int countOfArray = -1;
+		try {
+			countOfArray = getAllObjectsFromJSONArray(jsonObject, key).size();
+		}
+		catch(Exception e) {
+			throw new Exception(e.getMessage());
+		}
+		
+		return countOfArray;
+	}
+	
+	public int getCountOfObjectsInJSONArray(JSONArray jsonArray) throws Exception {
+		int countOfArray = -1;
+		try {
+			countOfArray = jsonArray.size();
+		}
+		catch(Exception e) {
+			throw new Exception(e.getMessage());
+		}
+		
+		return countOfArray;
+	}
+	
+	public JSONObject getFirstObjectFromJSONArray(JSONObject jsonObject, String key) throws Exception {
+		JSONObject jsonObjectToReturn;
+		try {
+			jsonObjectToReturn = getAllObjectsFromJSONArray(jsonObject, key).get(0);
+		}
+		catch(Exception e) {
+			throw new Exception(e.getMessage());
+		}
+		
+		return jsonObjectToReturn;
+	}
+	
+	public JSONObject getFirstObjectFromJSONArray(JSONArray jsonArray) throws Exception {
+		JSONObject jsonObjectToReturn;
+		try {
+			jsonObjectToReturn = (JSONObject) jsonArray.get(0);
+		}
+		catch(Exception e) {
+			throw new Exception(e.getMessage());
+		}
+		
+		return jsonObjectToReturn;
+	}
+	
+	public Object getFirstValueFromJSONArray(JSONObject jsonObject, String key) throws Exception {
+		Object valueToReturn;
+		try {
+			valueToReturn = getAllValuesFromJSONArray(jsonObject, key)[0];
+		}
+		catch(Exception e) {
+			throw new Exception(e.getMessage());
+		}
+		
+		return valueToReturn;
+	}
+	
+	public Object getFirstValueFromJSONArray(JSONArray jsonArray) throws Exception {
+		Object valueToReturn;
+		try {
+			valueToReturn = jsonArray.get(0);	
+		}
+		catch(Exception e) {
+			throw new Exception(e.getMessage());
+		}
+		
+		return valueToReturn;
+	}
+	
 	public JSONArray getJSONArray(JSONObject json, String arrayKey) throws Exception {
 		JSONArray jsonArray;
 		try {
@@ -72,7 +144,6 @@ public class AccessJson {
 						obj = (JSONObject) jsonArray.get(count);
 						listOfJSONObject.add(obj);
 						count++;
-						
 					}
 				}
 				else {
@@ -290,7 +361,7 @@ public class AccessJson {
 		return array;
 	}
 	
-	public static List<JSONObject> getFilteredJSONObjects(List<JSONObject> jsonObjects, String condition) throws Exception {
+	public List<JSONObject> getFilteredJSONObjects(List<JSONObject> jsonObjects, String condition) throws Exception {
 		List<JSONObject> filteredObjects = new ArrayList<JSONObject>();
 		try {
 			String[] params;
@@ -329,7 +400,7 @@ public class AccessJson {
 			throw new InvalidSearchOperationException();
 		}
 		catch (Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
 		return filteredObjects;
