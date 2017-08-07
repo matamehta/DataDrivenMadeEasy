@@ -18,6 +18,7 @@ import com.easyautomation.datadrivenmadeeasy.exceptions.InvalidSearchOperationEx
 import com.easyautomation.datadrivenmadeeasy.exceptions.JSONParseException;
 import com.easyautomation.datadrivenmadeeasy.exceptions.NoSuchJSONArrayException;
 import com.easyautomation.datadrivenmadeeasy.exceptions.NoSuchPropertyException;
+import com.easyautomation.datadrivenmadeeasy.queryattributes.QueryFromJsonFile;
 
 public class AccessJsonFile {
 	
@@ -26,10 +27,12 @@ public class AccessJsonFile {
 	JSONObject jsonObject;
 	Object object;
 	FileWriter writeFile;
+	QueryFromJsonFile jsonQuery;
 	
 	public AccessJsonFile(File file) {
 		this.file = file;
 		parser = new JSONParser();
+		jsonQuery = new QueryFromJsonFile();
 	}
 	
 	public Object getPropertyValueFromJSONObject(String key) throws Exception {
@@ -436,5 +439,29 @@ public class AccessJsonFile {
 				writeFile.flush();
 			}
 		}
+	}
+	
+	public Object executeQuery(String query) throws Exception {
+		Object object = null;
+		try {
+			if(query.matches("SELECT")) {
+				object = parser.parse(new FileReader(file));
+				jsonObject = (JSONObject) object;
+				object = jsonQuery.executeSelectQuery(query, jsonObject);
+			}
+		}
+		catch(ParseException e) {
+			throw new JSONParseException();
+		}
+		catch(FileNotFoundException e) {
+			throw new FileNotFoundException("File " + file + " is not found");
+		}
+		catch(IOException e) {
+			throw new IOException("Could not read file " + file);
+		}
+		catch(Exception e) {
+			throw new Exception(e.getCause().toString());
+		}
+		return object;
 	}
 }
