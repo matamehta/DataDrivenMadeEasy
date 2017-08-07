@@ -156,6 +156,7 @@ public class QueryFromJsonFile {
 					Object value = accessJson.getPropertyValueFromJSONObject(jsonObject, key);
 					object = (Object) value;
 				}
+				break;
 			}
 		}
 		catch(Exception e) {
@@ -164,7 +165,10 @@ public class QueryFromJsonFile {
 		
 		return object;
 	}
-	
+
+	public void executeAddQuery(String query, JSONObject jsonObject) {
+		
+	}
 	
 	public String[] getConditions(String query) throws Exception {
 		List<String> conditions = new ArrayList<String>();

@@ -1,13 +1,19 @@
 package com.easyautomation.datadrivenmadeeasy.json;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
 
 import com.easyautomation.datadrivenmadeeasy.exceptions.InvalidSearchOperationException;
+import com.easyautomation.datadrivenmadeeasy.exceptions.JSONParseException;
 import com.easyautomation.datadrivenmadeeasy.exceptions.NoSuchJSONArrayException;
 import com.easyautomation.datadrivenmadeeasy.exceptions.NoSuchPropertyException;
 
@@ -187,6 +193,108 @@ public class AccessJson {
 		}
 		
 		return filteredJSONObjects;
+	}
+	
+	public JSONObject addPropertyToJSONObject(JSONObject jsonObject, String key, String value) throws Exception {
+		JSONObject json;
+		try {
+			jsonObject.put(key, value);
+			json = jsonObject;
+		}
+		catch(Exception e) {
+			throw new Exception(e.getCause().toString());
+		}
+		
+		return json;
+	}
+	
+	public JSONObject addValueToJSONArray(JSONObject jsonObject, String arrayKey, Object value) throws Exception {
+		JSONObject json;
+		try {
+			if(jsonObject.containsKey(arrayKey)) {
+				if(jsonObject.get(arrayKey) instanceof JSONArray) {
+					JSONArray list = (JSONArray) jsonObject.get(arrayKey);
+					list.add(value);
+					jsonObject.put(arrayKey, list);
+					json = jsonObject;
+				}
+				else {
+					throw new NoSuchJSONArrayException();
+				}
+			}
+			else {
+				JSONArray list = new JSONArray();
+				list.add(value);
+				jsonObject.put(arrayKey, list);
+				json = jsonObject;
+			}
+		}
+		catch(NoSuchJSONArrayException e) {
+			throw new NoSuchJSONArrayException();
+		}
+		catch(Exception e) {
+			throw new Exception(e.getCause().toString());
+		}
+		
+		return json;
+	}
+	
+	public JSONArray addValueToJSONArray(JSONArray jsonArray, Object value) throws Exception {
+		JSONArray array;
+		try {
+			jsonArray.add(value);
+			array = jsonArray;
+		}
+		catch(Exception e) {
+			throw new Exception(e.getCause().toString());
+		}
+		
+		return array;
+	}
+	
+	public JSONObject addJSONObjectToJSONArray(JSONObject jsonObject, String arrayKey, JSONObject jsonObj) throws Exception {
+		JSONObject json;
+		try {
+			if(jsonObject.containsKey(arrayKey)) {
+				if(jsonObject.get(arrayKey) instanceof JSONArray) {
+					JSONArray list = (JSONArray) jsonObject.get(arrayKey);
+					list.add(jsonObj);
+					jsonObject.put(arrayKey, list);
+					json = jsonObject;
+					
+				}
+				else {
+					throw new NoSuchJSONArrayException();
+				}
+			}
+			else {
+				JSONArray list = new JSONArray();
+				list.add(jsonObj);
+				jsonObject.put(arrayKey, list);
+				json = jsonObject;
+			}
+		}
+		catch(NoSuchJSONArrayException e) {
+			throw new NoSuchJSONArrayException();
+		}
+		catch(Exception e) {
+			throw new Exception(e.getCause().toString());
+		}
+		
+		return json;
+	}
+	
+	public JSONArray addJSONObjectToJSONArray(JSONArray jsonArray,  JSONObject jsonObj) throws Exception {
+		JSONArray array;
+		try {
+			jsonArray.add(jsonObj);
+			array = jsonArray;
+		}
+		catch(Exception e) {
+			throw new Exception(e.getCause().toString());
+		}
+		
+		return array;
 	}
 	
 	public static List<JSONObject> getFilteredJSONObjects(List<JSONObject> jsonObjects, String condition) throws Exception {
