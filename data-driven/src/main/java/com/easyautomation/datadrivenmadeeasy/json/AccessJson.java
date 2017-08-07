@@ -67,11 +67,13 @@ public class AccessJson {
 			if(json.containsKey(arrayKey)) {
 				if(json.get(arrayKey) instanceof JSONArray) {
 					JSONArray jsonArray = (JSONArray) json.get(arrayKey);
-					Iterator<JSONObject> i = jsonArray.iterator();
-					
-					while(i.hasNext()) {
-						JSONObject object = (JSONObject) i.next();
-						listOfJSONObject.add(object);
+					JSONObject obj = new JSONObject();
+					int count = 0;
+					while(count < jsonArray.size()) {
+						obj = (JSONObject) jsonArray.get(count);
+						listOfJSONObject.add(obj);
+						count++;
+						
 					}
 				}
 				else {
@@ -98,12 +100,14 @@ public class AccessJson {
 	public List<JSONObject> getAllObjectsFromJSONArray(JSONArray array) throws Exception {
 		List<JSONObject> listOfJSONObject = new ArrayList<JSONObject>();
 		try {
-			Iterator<JSONObject> i = array.iterator();
-					
-			while(i.hasNext()) {
-				JSONObject object = (JSONObject) i.next();
-				listOfJSONObject.add(object);
-			}	
+			JSONObject obj = new JSONObject();
+			int count = 0;
+			while(count < array.size()) {
+				obj = (JSONObject) array.get(count);
+				listOfJSONObject.add(obj);
+				count++;
+				
+			}
 		}
 		catch(Exception e) {
 			throw new Exception(e.getCause().toString());
