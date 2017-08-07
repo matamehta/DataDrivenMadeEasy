@@ -1,19 +1,12 @@
 package com.easyautomation.datadrivenmadeeasy.json;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.ParseException;
 
 import com.easyautomation.datadrivenmadeeasy.exceptions.InvalidSearchOperationException;
-import com.easyautomation.datadrivenmadeeasy.exceptions.JSONParseException;
 import com.easyautomation.datadrivenmadeeasy.exceptions.NoSuchJSONArrayException;
 import com.easyautomation.datadrivenmadeeasy.exceptions.NoSuchPropertyException;
 
@@ -33,7 +26,7 @@ public class AccessJson {
 			throw new NoSuchPropertyException("Property " + key + " is not present in JSON");
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
 		return value;
@@ -61,7 +54,7 @@ public class AccessJson {
 			throw new NoSuchJSONArrayException();
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
 		return jsonArray;
@@ -97,7 +90,7 @@ public class AccessJson {
 			throw new NoSuchJSONArrayException();
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
 		return listOfJSONObject;
@@ -116,7 +109,7 @@ public class AccessJson {
 			}
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
 		return listOfJSONObject;
@@ -145,7 +138,7 @@ public class AccessJson {
 			throw new NoSuchJSONArrayException();
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
 		return values;
@@ -157,7 +150,7 @@ public class AccessJson {
 			values = array.toArray();	
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
 		return values;
@@ -173,7 +166,7 @@ public class AccessJson {
 			filteredJSONObjects = jsonObjects;
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
 		return filteredJSONObjects;
@@ -189,7 +182,7 @@ public class AccessJson {
 			filteredJSONObjects = jsonObjects;
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
 		return filteredJSONObjects;
@@ -202,7 +195,7 @@ public class AccessJson {
 			json = jsonObject;
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
 		return json;
@@ -233,7 +226,7 @@ public class AccessJson {
 			throw new NoSuchJSONArrayException();
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
 		return json;
@@ -246,7 +239,7 @@ public class AccessJson {
 			array = jsonArray;
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
 		return array;
@@ -278,7 +271,7 @@ public class AccessJson {
 			throw new NoSuchJSONArrayException();
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
 		return json;
@@ -291,7 +284,7 @@ public class AccessJson {
 			array = jsonArray;
 		}
 		catch(Exception e) {
-			throw new Exception(e.getCause().toString());
+			throw new Exception(e.getMessage());
 		}
 		
 		return array;
