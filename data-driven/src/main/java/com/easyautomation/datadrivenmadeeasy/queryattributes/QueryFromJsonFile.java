@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -24,13 +26,14 @@ public class QueryFromJsonFile {
 		SELECT_OBJECT_FIRST_ARRAY,
 		SELECT_OBJECT_LAST_ARRAY,
 		SELECT_OBJECT_ALL_ARRAY,
-		SELECT_OBJECT_FIRST_ARRAY_CONDITION, // Not Added
-		SELECT_OBJECT_LAST_ARRAY_CONDITION, // Not Added
-		SELECT_OBJECT_ALL_ARRAY_CONDITION, // Not Added
+		SELECT_OBJECT_FIRST_ARRAY_CONDITION,
+		SELECT_OBJECT_LAST_ARRAY_CONDITION,
+		SELECT_OBJECT_ALL_ARRAY_CONDITION,
 		SELECT_VALUE_FIRST_ARRAY,
 		SELECT_VALUE_LAST_ARRAY,
 		SELECT_VALUE_ALL_ARRAY,
-		SELECT_VALUE_KEY
+		SELECT_VALUE_KEY,
+		ADD_KEYVALUE
 	}
 	
 	public QueryFromJsonFile() {
@@ -39,18 +42,23 @@ public class QueryFromJsonFile {
 		queryMatcher.put(Query.SELECT_OBJECT, "SELECT OBJECT");
 		queryMatcher.put(Query.SELECT_ARRAY_KEY, "SELECT ARRAY WITH [a-zA-Z0-9]*");
 		queryMatcher.put(Query.SELECT_OBJECT_FIRST_ARRAY, "SELECT OBJECT FIRST FROM ARRAY WITH [a-zA-Z0-9]*");
+		queryMatcher.put(Query.SELECT_OBJECT_FIRST_ARRAY_CONDITION, "SELECT OBJECT FIRST FROM ARRAY WITH (.*) CONDITION (.*)");
 		queryMatcher.put(Query.SELECT_OBJECT_LAST_ARRAY, "SELECT OBJECT LAST FROM ARRAY WITH [a-zA-Z0-9]*");
+		queryMatcher.put(Query.SELECT_OBJECT_LAST_ARRAY_CONDITION, "SELECT OBJECT LAST FROM ARRAY WITH (.*) CONDITION (.*)");
 		queryMatcher.put(Query.SELECT_OBJECT_ALL_ARRAY, "SELECT OBJECT ALL FROM ARRAY WITH [a-zA-Z0-9]*");
+		queryMatcher.put(Query.SELECT_OBJECT_ALL_ARRAY_CONDITION, "SELECT OBJECT ALL FROM ARRAY WITH (.*) CONDITION (.*)");
 		queryMatcher.put(Query.SELECT_VALUE_FIRST_ARRAY, "SELECT VALUE FIRST FROM ARRAY WITH [a-zA-Z0-9]*");
 		queryMatcher.put(Query.SELECT_VALUE_LAST_ARRAY, "SELECT VALUE LAST FROM ARRAY WITH [a-zA-Z0-9]*");
 		queryMatcher.put(Query.SELECT_VALUE_ALL_ARRAY, "SELECT VALUE ALL FROM ARRAY WITH [a-zA-Z0-9]*");
 		queryMatcher.put(Query.SELECT_VALUE_KEY, "SELECT VALUE WITH [a-zA-Z0-9]*");
+		queryMatcher.put(Query.ADD_KEYVALUE, "ADD VALUE [a-zA-Z0-9]* [a-zA-Z0-9]*");
 	}
 	
 	// Select *
 	// Select prop1, prop2 where prop3=value and prop4=value
 	// Update prop=value where prop3=value
 	// Add prop=value
+	// ADD prop value
 	
 	public Query getQueryType(String query) throws Exception {
 		Query queryType = null;
@@ -81,12 +89,12 @@ public class QueryFromJsonFile {
 		try {
 			Query queryType = getQueryType(query);
 			switch(queryType) {
-				// Select object
+				// SELECT OBJECT
 				case SELECT_OBJECT: { 
 					object = (Object) jsonObject;
 				}
 				break;
-				// Select array with key
+				// SELECT ARRAY WITH KEY
 				case SELECT_ARRAY_KEY: {
 					String[] parts = query.split(" ");
 					String key = parts[parts.length-1];
@@ -94,7 +102,7 @@ public class QueryFromJsonFile {
 					object = (Object) array;
 				}
 				break;
-				// Select object first from array with key
+				// SELECT OBJECT FIRST FROM ARRAY WITH KEY
 				case SELECT_OBJECT_FIRST_ARRAY: {
 					String[] parts = query.split(" ");
 					String key = parts[parts.length-1];
@@ -104,7 +112,23 @@ public class QueryFromJsonFile {
 					}
 				}
 				break;
-				// Select object last from array with key
+				// SELECT OBJECT FIRST FROM ARRAY WITH KEY CONDITION key1 EQUALS value1 AND key2 CONTAINS value2
+				case SELECT_OBJECT_FIRST_ARRAY_CONDITION: {
+					String regex = queryMatcher.get(queryType);
+					Pattern pattern = Pattern.compile(regex);
+					Matcher matcher = pattern.matcher(query);
+					if(matcher.matches()) {
+						String arrayKey = matcher.group(1);
+						String conditions = matcher.group(2);
+						String[] conditionList = getConditions(conditions);
+						List<JSONObject> filteredObjects = accessJson.getObjectsFromJSONArrayBasedOnCondition(jsonObject, arrayKey, conditionList);
+						if(filteredObjects.size() > 0) {
+							object = (Object) filteredObjects.get(0);
+						}
+					}
+				}
+				break;
+				// SELECT OBJECT LAST FROM ARRAY WITH KEY
 				case SELECT_OBJECT_LAST_ARRAY: {
 					String[] parts = query.split(" ");
 					String key = parts[parts.length-1];
@@ -116,7 +140,23 @@ public class QueryFromJsonFile {
 					}
 				}
 				break;
-				// Select object all from array with key
+				// SELECT OBJECT FIRST FROM ARRAY WITH KEY CONDITION key1 EQUALS value1 AND key2 CONTAINS value2
+				case SELECT_OBJECT_LAST_ARRAY_CONDITION: {
+					String regex = queryMatcher.get(queryType);
+					Pattern pattern = Pattern.compile(regex);
+					Matcher matcher = pattern.matcher(query);
+					if(matcher.matches()) {
+						String arrayKey = matcher.group(1);
+						String conditions = matcher.group(2);
+						String[] conditionList = getConditions(conditions);
+						List<JSONObject> filteredObjects = accessJson.getObjectsFromJSONArrayBasedOnCondition(jsonObject, arrayKey, conditionList);
+						if(filteredObjects.size() > 0) {
+							object = (Object) filteredObjects.get(filteredObjects.size()-1);
+						}
+					}
+				}
+				break;
+				// SELECT OBJECT ALL FROM ARRAY WITH KEY
 				case SELECT_OBJECT_ALL_ARRAY: {
 					String[] parts = query.split(" ");
 					String key = parts[parts.length-1];
@@ -124,8 +164,23 @@ public class QueryFromJsonFile {
 					object = (Object) allObjects;
 				}
 				break;
-				// Select object from array with key condition param1 EQUALS value1 and param2 EQUALS value2
-				// Select value first from array with key
+				// SELECT OBJECT FIRST FROM ARRAY WITH KEY CONDITION key1 EQUALS value1 AND key2 CONTAINS value2
+				case SELECT_OBJECT_ALL_ARRAY_CONDITION: {
+					String regex = queryMatcher.get(queryType);
+					Pattern pattern = Pattern.compile(regex);
+					Matcher matcher = pattern.matcher(query);
+					if(matcher.matches()) {
+						String arrayKey = matcher.group(1);
+						String conditions = matcher.group(2);
+						String[] conditionList = getConditions(conditions);
+						List<JSONObject> filteredObjects = accessJson.getObjectsFromJSONArrayBasedOnCondition(jsonObject, arrayKey, conditionList);
+						if(filteredObjects.size() > 0) {
+							object = (Object) filteredObjects;
+						}
+					}
+				}
+				break;
+				// SELECT VALUE FIRST FROM ARRAY WITH KEY
 				case SELECT_VALUE_FIRST_ARRAY: {
 					String[] parts = query.split(" ");
 					String key = parts[parts.length-1];
@@ -133,7 +188,7 @@ public class QueryFromJsonFile {
 					object = (Object) allValues[0];
 				}
 				break;
-				// Select value last from array with key
+				// SELECT VALUE LAST FROM ARRAY WITH KEY
 				case SELECT_VALUE_LAST_ARRAY: {
 					String[] parts = query.split(" ");
 					String key = parts[parts.length-1];
@@ -141,7 +196,7 @@ public class QueryFromJsonFile {
 					object = (Object) allValues[allValues.length-1];
 				}
 				break;
-				// Select value all from array with key
+				// SELECT VALUE ALL FROM ARRAY WITH KEY
 				case SELECT_VALUE_ALL_ARRAY: {
 					String[] parts = query.split(" ");
 					String key = parts[parts.length-1];
@@ -149,12 +204,21 @@ public class QueryFromJsonFile {
 					object = (Object) allValues;
 				}
 				break;
-				// Select value with key
+				// SELECT VALUE WITH KEY
 				case SELECT_VALUE_KEY: {
 					String[] parts = query.split(" ");
 					String key = parts[parts.length-1];
 					Object value = accessJson.getPropertyValueFromJSONObject(jsonObject, key);
 					object = (Object) value;
+				}
+				break;
+				// ADD VALUE key valueToEnter
+				case ADD_KEYVALUE: {
+					String[] parts = query.split(" ");
+					String key = parts[1];
+					String value = parts[2];
+					JSONObject json = accessJson.addPropertyToJSONObject(jsonObject, key, value);
+					object = (Object) json;
 				}
 				break;
 			}
@@ -170,15 +234,11 @@ public class QueryFromJsonFile {
 		
 	}
 	
-	public String[] getConditions(String query) throws Exception {
-		List<String> conditions = new ArrayList<String>();
+	public String[] getConditions(String conditions) throws Exception {
 		String[] conditionsList = {};
 		try {
-			if(query.contains(" WHERE ")) {
-				String[] parts = query.split(" WHERE ");
-				if(conditions.contains(" AND ")) {
-					conditionsList = parts[1].split(" AND ");
-				}
+			if(conditions.contains(" AND ")) {
+				conditionsList = conditions.split(" AND ");
 			}
 		}
 		catch(Exception e) {
