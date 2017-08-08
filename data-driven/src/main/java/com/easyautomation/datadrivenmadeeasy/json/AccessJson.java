@@ -227,12 +227,12 @@ public class AccessJson {
 		return values;
 	}
 	
-	public List<JSONObject> getObjectsFromJSONArrayBasedOnCondition(JSONObject json, String arrayKey, List<String> condition) throws Exception {
+	public List<JSONObject> getObjectsFromJSONArrayBasedOnCondition(JSONObject json, String arrayKey, String[] condition) throws Exception {
 		List<JSONObject> filteredJSONObjects = new ArrayList<JSONObject>();
 		try {
 			List<JSONObject> jsonObjects = getAllObjectsFromJSONArray(json, arrayKey);
-			for(int counter = 0; counter < condition.size(); counter++) {
-				jsonObjects = getFilteredJSONObjects(jsonObjects, condition.get(counter));
+			for(int counter = 0; counter < condition.length; counter++) {
+				jsonObjects = getFilteredJSONObjects(jsonObjects, condition[counter]);
 			}
 			filteredJSONObjects = jsonObjects;
 		}
@@ -404,5 +404,26 @@ public class AccessJson {
 		}
 		
 		return filteredObjects;
+	}
+	
+	public Boolean keyExists(JSONObject jsonObject, String key) throws Exception {
+		Boolean ifKeyExists = false;
+		try {
+			String keys[] = key.split(".");
+			JSONObject json = jsonObject;
+			int count = 1;
+			while(Boolean.valueOf(String.valueOf(count))) {
+				if(json.containsKey(keys[count-1])) {
+					if(keys.length == count) {
+						ifKeyExists = true;
+					}
+				}
+				count++;
+			}
+		}
+		catch(Exception e) {
+			throw new Exception(e.getMessage());
+		}
+		return ifKeyExists;
 	}
 }

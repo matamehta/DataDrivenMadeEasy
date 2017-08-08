@@ -194,7 +194,7 @@ public class AccessJsonFile {
 		return values;
 	}
 	
-	public List<JSONObject> getObjectsFromJSONArrayBasedOnCondition(String arrayKey, List<String> condition) throws Exception {
+	public List<JSONObject> getObjectsFromJSONArrayBasedOnCondition(String arrayKey, String[] condition) throws Exception {
 		List<JSONObject> filteredJSONObjects = new ArrayList<JSONObject>();
 		try {
 			object = parser.parse(new FileReader(file));
